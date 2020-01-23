@@ -1,7 +1,5 @@
 package com.cab;
 
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -104,21 +102,17 @@ public class Vehicle extends Thread {
 					int time = Integer.parseInt(prop.getProperty(STOP));
 					getTripStatus(jo, time);
 				}
-				
+				try (FileWriter file = new FileWriter(vehicleJson)) {
+					System.out.println(jo.toString());
+					file.write(jo.toString());
+					System.out.println("Successfully updated json object to file...!!");
+					file.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	private void getDetails(JSONObject jo) {
-		try (FileWriter file = new FileWriter(vehicleJson)) {
-			System.out.println(jo.toString());
-			file.write(jo.toString());
-			System.out.println("Successfully updated json object to file...!!");
-			file.close();
-		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -136,20 +130,7 @@ public class Vehicle extends Thread {
 
 		}
 		((JSONObject) jo.get(attributes)).put(status, userinput);
-		for(int i=0;i<10;i++) {
-			getDetails(jo);
-			Thread.sleep(time * 1000);
-		}
-		
+		Thread.sleep(time * 1000);
 	}
 
 }
-class MyKeyListener extends KeyAdapter {
-	 
-    @Override
-    public void keyPressed(KeyEvent event)
-    {
-    	System.out.println("Enter New Status");
-    }
-}
-
