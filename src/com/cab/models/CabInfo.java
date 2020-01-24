@@ -2,32 +2,38 @@ package com.cab.models;
 
 public class CabInfo {
 
-private Attributes attributes;
-private VehicleInfo vehichleInfo;
-private Position position;
+	private Attributes attributes;
+	private VehicleInfo vehicleInfo;
+	private Position position;
 
-public Attributes getAttributes() {
-return attributes;
-}
+	public Attributes getAttributes() {
+		return attributes;
+	}
 
-public void setAttributes(Attributes attributes) {
-this.attributes = attributes;
-}
+	public void setAttributes(Attributes attributes) {
+		this.attributes = attributes;
+	}
 
-public VehicleInfo getVehichleInfo() {
-return vehichleInfo;
-}
+	public VehicleInfo getVehichleInfo() {
+		return vehicleInfo;
+	}
 
-public void setVehichleInfo(VehicleInfo vehichleInfo) {
-this.vehichleInfo = vehichleInfo;
-}
+	public void setVehichleInfo(VehicleInfo vehichleInfo) {
+		this.vehicleInfo = vehichleInfo;
+	}
 
-public Position getPosition() {
-return position;
-}
+	public Position getPosition() {
+		return position;
+	}
 
-public void setPosition(Position position) {
-this.position = position;
-}
+	public void setPosition(Position position) {
+		this.position = position;
+	}
+
+	@Override
+	public String toString() {
+		return "CabInfo [attributes=" + attributes + ", vehicleInfo=" + vehicleInfo + ", position=" + position + "]";
+	}
+	
 
 }

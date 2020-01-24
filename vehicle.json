@@ -1,18 +1,18 @@
 {
-	"vehichleInfo": {
-		"name": "v1",
-		"vehicleIdentificationnumber": "1234"
-	},
 	"attributes": {
-		"trip_status": "pause",
+		"tripStatus": "start",
 		"heading": {
 			"latitude": "3",
 			"longitude": "2"
 		},
-		"soc": 100
+		"soc": "100"
 	},
 	"position": {
 		"latitude": "2",
 		"longitude": "1"
+	},
+	"vehichleInfo": {
+		"name": "v1",
+		"vehicleIdentificationnumber": "1234"
 	}
 }

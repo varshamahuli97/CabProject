@@ -20,4 +20,9 @@ public void setVehicleIdentificationnumber(String vehicleIdentificationnumber) {
 this.vehicleIdentificationnumber = vehicleIdentificationnumber;
 }
 
+@Override
+public String toString() {
+	return "VehicleInfo [name=" + name + ", vehicleIdentificationnumber=" + vehicleIdentificationnumber + "]";
+}
+
 }

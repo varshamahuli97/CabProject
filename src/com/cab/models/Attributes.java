@@ -30,4 +30,10 @@ public class Attributes {
 		this.soc = soc;
 	}
 
+	@Override
+	public String toString() {
+		return "Attributes [tripStatus=" + tripStatus + ", heading=" + heading + ", soc=" + soc + "]";
+	}
+	
+
 }

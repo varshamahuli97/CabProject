@@ -10,15 +10,19 @@ import java.util.Scanner;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import com.cab.models.Attributes;
+import com.cab.models.CabInfo;
 import com.cab.models.Position;
 import com.cab.models.Track;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 
 public class Vehicle extends Thread {
 	private static final String STOP = "stop";
 	private static final String PAUSE = "pause";
 	private static final String START = "start";
 	private static final String positions = "position";
-	private static final String status = "trip_status";
+	private static final String status = "tripStatus";
 	private static final String longitude = "longitude";
 	private static final String attributes = "attributes";
 	private static final String latitude = "latitude";
@@ -26,29 +30,30 @@ public class Vehicle extends Thread {
 	private String vehicleId;
 	private Position position;
 	private Position[] track;
-	private int statusOfCharge;
+	private String statusOfCharge;
 	private Position nextPosition;
 	private String tripStatus;
 	private String vehicleJson;
 	private Thread vehicle;
 	private Scanner sc;
+	private CabInfo a;
 
 	Vehicle(int track_id, String filename) {
 		vehicleJson = filename;
 		FileReader jsonFile;
 		try {
 			jsonFile = new FileReader(vehicleJson);
-			Object obj = new JSONParser().parse(jsonFile);
-			JSONObject jo = (JSONObject) obj;
+			JSONObject jo = (JSONObject) new JSONParser().parse(jsonFile);
 			jsonFile.close();
-			name = ((JSONObject) jo.get("vehichleInfo")).get("name").toString();
-			vehicleId = ((JSONObject) jo.get("vehichleInfo")).get("vehicleIdentificationnumber").toString();
-			position = new Position(((JSONObject) jo.get(positions)).get(latitude).toString(),
-					((JSONObject) jo.get(positions)).get(longitude).toString());
-			statusOfCharge = Integer.parseInt(((JSONObject) jo.get(attributes)).get("soc").toString());
-			JSONObject heading = (JSONObject) ((JSONObject) jo.get(attributes)).get("heading");
-			nextPosition = new Position(heading.get(latitude).toString(), heading.get(longitude).toString());
-			tripStatus = ((JSONObject) jo.get(attributes)).get(status).toString();
+			a = new Gson().fromJson(jo.toString(), CabInfo.class);
+			System.out.println(jo.toString());
+			name = a.getVehichleInfo().getName();
+			vehicleId = a.getVehichleInfo().getVehicleIdentificationnumber();
+			position = new Position(a.getPosition().getLatitude(), a.getPosition().getLongitude());
+			statusOfCharge = a.getAttributes().getSoc();
+			nextPosition = new Position(a.getAttributes().getHeading().getLatitude(),
+					a.getAttributes().getHeading().getLongitude());
+			tripStatus = a.getAttributes().getTripStatus();
 			track = Track.getMyTrack(track_id);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -69,18 +74,18 @@ public class Vehicle extends Thread {
 			Properties prop = new Properties();
 			prop.load(input);
 			while (true) {
-				FileReader jsonFile = new FileReader(vehicleJson);
-				Object obj = new JSONParser().parse(jsonFile);
-				JSONObject jo = (JSONObject) obj;
-				jsonFile.close();
-				tripStatus = ((JSONObject) jo.get(attributes)).get(status).toString().trim();
+				// FileReader jsonFile = new FileReader(vehicleJson);
+				// Object obj = new JSONParser().parse(jsonFile);
+				// JSONObject jo = (JSONObject) obj;
+				// jsonFile.close();
+				tripStatus = a.getAttributes().getTripStatus();
 				System.out.println(tripStatus);
 				int count = 0;
 				if (tripStatus.equals(START)) {
 					int time = Integer.parseInt(prop.getProperty(START));
-					position.setLatitude(((JSONObject) jo.get(positions)).get(latitude).toString().trim());
-					position.setLongitude(((JSONObject) jo.get(positions)).get(longitude).toString().trim());
-					for (int i = 0; i < Track.getTrackSize(); i++) {
+					position.setLatitude(a.getAttributes().getHeading().getLatitude());
+					position.setLongitude(a.getAttributes().getHeading().getLatitude());
+					for (int i = 0; i < Track.getTrackSize();i++) {
 						track = Track.getMyTrack(i);
 						Position pos = track[0];
 						if (position.getLatitude().equals(pos.getLatitude())
@@ -94,17 +99,19 @@ public class Vehicle extends Thread {
 					if (count == 0) {
 						System.out.println("Our Vehicle is not on track , Please check");
 					}
-					getTripStatus(jo, time);
+					getTripStatus(a, time);
 				} else if (tripStatus.equals(PAUSE)) {
 					int time = Integer.parseInt(prop.getProperty(PAUSE));
-					getTripStatus(jo, time);
+					getTripStatus(a, time);
 				} else if (tripStatus.equals(STOP)) {
 					int time = Integer.parseInt(prop.getProperty(STOP));
-					getTripStatus(jo, time);
+					getTripStatus(a, time);
 				}
 				try (FileWriter file = new FileWriter(vehicleJson)) {
-					System.out.println(jo.toString());
-					file.write(jo.toString());
+					ObjectMapper Obj = new ObjectMapper();
+					String jsonStr = Obj.writeValueAsString(a);
+					System.out.println(jsonStr);
+					file.write(jsonStr);
 					System.out.println("Successfully updated json object to file...!!");
 					file.close();
 				} catch (Exception e) {
@@ -117,8 +124,8 @@ public class Vehicle extends Thread {
 		}
 	}
 
-	private void getTripStatus(JSONObject jo, int time) throws InterruptedException {
-		tripStatus = ((JSONObject) jo.get(attributes)).get(status).toString().trim();
+	private void getTripStatus(CabInfo jo, int time) throws InterruptedException {
+		tripStatus = a.getAttributes().getTripStatus();
 		System.out.println("Enter new Status");
 		String userinput = sc.nextLine();
 		if (tripStatus.equals(START)) {
@@ -129,7 +136,7 @@ public class Vehicle extends Thread {
 			}
 
 		}
-		((JSONObject) jo.get(attributes)).put(status, userinput);
+		a.getAttributes().setTripStatus(userinput);
 		Thread.sleep(time * 1000);
 	}
 
